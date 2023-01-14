@@ -34,7 +34,7 @@ public class UserService {
 		user.setAvatar(userDto.getAvatar());
 		user.setComments(userDto.getComments());
 		user.setPosts(userDto.getPosts());
-		user.setStatus(Status.OFFLINE);
+		user.setStatus(Status.ONLINE);
 
 		logger.info("User successfully added !!!");
 
@@ -55,7 +55,7 @@ public class UserService {
 	public User enableStatus(int userId) {
 
 		User user = getUser(userId);
-		user.setStatus(Status.ONLINE);
+		user.setStatus(Status.OFFLINE);
 		return user;
 	}
 
@@ -81,6 +81,12 @@ public class UserService {
 
 	public List<User> displayAllUser() {
 		return userRepo.findAll();
+	}
+
+	public void deleteUserPermanent(int userId) {
+		User user = getUser(userId);
+		userRepo.delete(user);
+		logger.info("User deleted successfully !!!");
 	}
 
 }
