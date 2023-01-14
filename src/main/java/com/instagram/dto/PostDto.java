@@ -25,7 +25,8 @@ public class PostDto {
 	@NotBlank(message = "Post image required")
 	private String postImage;
 
-	private User user;
+	private User username;
+
 	private List<Comment> comments = new ArrayList<>();
 
 }
