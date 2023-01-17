@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.instagram.Enum.Status;
+import com.instagram.dto.AvatarDto;
 import com.instagram.dto.UserDto;
+import com.instagram.dto.UserInfoDto;
 import com.instagram.exception.NotFoundException;
 import com.instagram.model.User;
 import com.instagram.repo.UserRepository;
@@ -31,18 +33,31 @@ public class UserService {
 		user.setUsername(userDto.getUsername());
 		user.setFullName(userDto.getFullName());
 		user.setBio(userDto.getBio());
-		user.setAvatar(userDto.getAvatar());
-		user.setComments(userDto.getComments());
-		user.setPosts(userDto.getPosts());
 		user.setStatus(Status.ONLINE);
-
 		logger.info("User successfully added !!!");
 
 		return userRepo.save(user);
 
 	}
 
-	public User updateUsername(@Valid UserDto userDto, int userId) {
+	public User uploadAvatar(@Valid AvatarDto avatarDto) {
+		User user = new User();
+		user.setAvatar(avatarDto.getAvatar());
+		return userRepo.save(user);
+	}
+
+	public User updateAvatar(AvatarDto avatarDto, int avatarId) {
+
+		User updateAvatar = new User();
+
+		if (!userRepo.existsById(avatarId)) {
+			throw new NotFoundException("Avatar id not matches");
+		}
+		updateAvatar.setAvatar(avatarDto.getAvatar());
+		return userRepo.save(updateAvatar);
+	}
+
+	public User updateUsername(UserDto userDto, int userId) {
 
 		User updateUsername = getUser(userId);
 		updateUsername.setUsername(userDto.getUsername());
@@ -59,13 +74,11 @@ public class UserService {
 		return user;
 	}
 
-	public User updateUserInfo(@Valid UserDto userDto, int userId) {
+	public User updateUserInfo(@Valid UserInfoDto infoDto, int userId) {
 
 		User updateUser = getUser(userId);
-		updateUser.setFullName(userDto.getFullName());
-		updateUser.setBio(userDto.getBio());
-		updateUser.setAvatar(userDto.getAvatar());
-
+		updateUser.setFullName(infoDto.getFullName());
+		updateUser.setBio(infoDto.getBio());
 		logger.info("User info updated successfully !!!");
 
 		return userRepo.save(updateUser);

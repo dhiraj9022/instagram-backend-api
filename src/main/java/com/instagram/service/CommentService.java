@@ -1,7 +1,5 @@
 package com.instagram.service;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.instagram.dto.CommentDto;
 import com.instagram.model.Comment;
-import com.instagram.model.Post;
+import com.instagram.model.User;
 import com.instagram.repo.CommentRepository;
 
 @Service
@@ -35,18 +33,21 @@ public class CommentService {
 
 	}
 
-	public List<Comment> getAllComment(Post post) {
-		List<Comment> comments = commentRepo.findAllByPost(post);
-		for (Comment comment : comments) {
-			comment.setUser(userService.getUser(comment.getUser().getUserId()));
-		}
-		return comments;
-	}
+//	@Transactional
+//	public List<Comment> getAllComment() {
+//		Post post = new Post();
+//		List<Comment> comments = commentRepo.findAllByPost(post);
+//		for (Comment comment : comments) {
+//			comment.setUser(userService.getUser(comment.getUser().getUserId()));
+//		}
+//		return comments;
+//	}
 
-	public void deleteAllComment() {
+	public void deleteComment(int userId) {
 
-		commentRepo.deleteAll();
+		User user = userService.getUser(userId);
+		commentRepo.deleteById(user.getUserId());
 
-		logger.info("Deleted All comment successfully !!!");
+		logger.info("Deleted comment successfully !!!");
 	}
 }

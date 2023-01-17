@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.instagram.dto.UserDto;
+import com.instagram.dto.UserInfoDto;
 import com.instagram.model.User;
 import com.instagram.service.UserService;
 
@@ -46,15 +47,16 @@ public class UserController {
 		return ResponseEntity.ok(userService.enableStatus(userId));
 	}
 
-	@PutMapping("/{userId}")
+	@PutMapping("/username/{userId}")
 	public ResponseEntity<User> updateUsername(@Valid @RequestBody UserDto userDto,
-			@PathVariable(name = "id") int userId) {
+			@PathVariable(name = "userId") int userId) {
 		return ResponseEntity.ok(userService.updateUsername(userDto, userId));
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<User> updateUser(@Valid @RequestBody UserDto userDto, @PathVariable(name = "id") int userId) {
-		return ResponseEntity.ok(userService.updateUserInfo(userDto, userId));
+	public ResponseEntity<User> updateUser(@Valid @RequestBody UserInfoDto userInfoDto,
+			@PathVariable(name = "id") int userId) {
+		return ResponseEntity.ok(userService.updateUserInfo(userInfoDto, userId));
 	}
 
 	@DeleteMapping("/{userId}")
