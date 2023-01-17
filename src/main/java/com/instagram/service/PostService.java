@@ -1,5 +1,7 @@
 package com.instagram.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -14,6 +16,7 @@ import com.instagram.exception.NotFoundException;
 import com.instagram.model.Post;
 import com.instagram.model.User;
 import com.instagram.repo.PostRepository;
+import com.instagram.repo.UserRepository;
 
 @Service
 public class PostService {
@@ -26,24 +29,38 @@ public class PostService {
 	@Autowired
 	private UserService userService;
 
+	@Autowired
+	private UserRepository userRepo;
+
 	public Post submitPost(@Valid PostDto postDto) {
 
-		Post post = new Post();
+		User user = userService.checkUsernameAvailable(postDto.getUser().getUsername());
 
+		Post post = new Post();
 		post.setCaption(postDto.getCaption());
 		post.setLocation(postDto.getLocation());
 		post.setLikeCount(postDto.getLikeCount());
-		// post.setPostImage(postDto.getPostImage());
-		post.setUser(postDto.getUsername());
+		post.setUser(user);
 
 		logger.info("Post submitted successfully");
 		return postRepo.save(post);
 	}
 
-//	public List<Post> getAllPost() {
-//		List<Post> posts = postRepo.findAll();
-//		return posts;
-//	}
+	public List<PostDto> getAllPost() {
+		List<PostDto> postDtos = new ArrayList<>();
+
+		postRepo.findAll().forEach(p -> {
+
+			PostDto postDto = new PostDto();
+			postDto.setCaption(p.getCaption());
+			postDto.setComments(p.getComments());
+			postDto.setLikeCount(p.getLikeCount());
+//			postDto.setUser(p.getUser());
+
+			postDtos.add(postDto);
+		});
+		return postDtos;
+	}
 
 	public Post getPost(int postId) {
 		Optional<Post> postOpt = postRepo.findById(postId);
@@ -59,7 +76,6 @@ public class PostService {
 
 		updatePost.setCaption(postDto.getCaption());
 		updatePost.setLocation(postDto.getLocation());
-		// updatePost.setPostImage(postDto.getPostImage());
 		updatePost.setLikeCount(postDto.getLikeCount());
 
 		logger.info("Post updated submitted successfully");

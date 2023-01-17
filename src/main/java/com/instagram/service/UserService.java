@@ -1,5 +1,6 @@
 package com.instagram.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.instagram.Enum.Status;
 import com.instagram.dto.AvatarDto;
+import com.instagram.dto.PostDto;
 import com.instagram.dto.UserDto;
 import com.instagram.dto.UserInfoDto;
 import com.instagram.exception.NotFoundException;
@@ -92,8 +94,49 @@ public class UserService {
 		return userOpt.get();
 	}
 
-	public List<User> displayAllUser() {
-		return userRepo.findAll();
+	public User checkUsernameAvailable(String username) {
+		Optional<User> userOpt = userRepo.findByUsername(username);
+		if (!userOpt.isPresent()) {
+			throw new NotFoundException("Username " + username + " not found");
+		}
+		return userOpt.get();
+	}
+
+	public List<UserDto> displayAllUser() {
+		List<UserDto> userDtos = new ArrayList<>();
+
+		userRepo.findAll().forEach(u -> {
+			UserDto userDto = new UserDto();
+			userDto.setBio(u.getBio());
+			userDto.setFullName(u.getFullName());
+			userDto.setUsername(u.getUsername());
+			userDto.setStatus(u.getStatus());
+
+			List<PostDto> postDtos = new ArrayList<>();
+
+			u.getPosts().forEach(p -> {
+				PostDto postDto = new PostDto();
+				postDto.setCaption(p.getCaption());
+				postDto.setLikeCount(p.getLikeCount());
+
+//				List<CommentDto> commentDtos = new ArrayList<>();
+//				p.getComments().forEach(c -> {
+//
+//					CommentDto commentDto = new CommentDto();
+//					commentDto.setComment(c.getComment());
+//
+//					commentDtos.add(commentDto);
+//				});
+
+				postDtos.add(postDto);
+
+			});
+
+			userDto.setPosts(u.getPosts());
+
+			userDtos.add(userDto);
+		});
+		return userDtos;
 	}
 
 	public void deleteUserPermanent(int userId) {
