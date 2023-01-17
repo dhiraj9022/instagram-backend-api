@@ -1,9 +1,14 @@
 package com.instagram.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import com.instagram.Enum.Status;
+import com.instagram.model.Comment;
+import com.instagram.model.Post;
 
 import lombok.Data;
 
@@ -17,9 +22,11 @@ public class UserDto {
 	private String fullName;
 
 	private String bio;
+
 	private Status status;
 
-//	private List<Post> posts = new ArrayList<>();
-//	private List<Comment> comments = new ArrayList<>();
+	private List<Post> posts = new ArrayList<>();
+
+	private List<Comment> comments = new ArrayList<>();
 
 }
