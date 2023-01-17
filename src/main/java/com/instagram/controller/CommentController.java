@@ -1,10 +1,13 @@
 package com.instagram.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,10 +30,10 @@ public class CommentController {
 		return ResponseEntity.ok(commentService.submitComment(commentDto));
 	}
 
-//	@GetMapping
-//	public ResponseEntity<List<Comment>> getAllComment() {
-//		return ResponseEntity.ok(commentService.getAllComment());
-//	}
+	@GetMapping
+	public ResponseEntity<List<Comment>> getAllComment() {
+		return ResponseEntity.ok(commentService.getAllComment());
+	}
 
 	@DeleteMapping("/user/{user_id}")
 	public ResponseEntity<Comment> deleteComment(@PathVariable(name = "user_id") int userId) {

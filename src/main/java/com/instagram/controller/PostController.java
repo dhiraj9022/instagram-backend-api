@@ -1,5 +1,7 @@
 package com.instagram.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +31,10 @@ public class PostController {
 		return ResponseEntity.ok(postService.submitPost(postDto));
 	}
 
-//	@GetMapping
-//	public ResponseEntity<List<Post>> getAllPost() {
-//		return ResponseEntity.ok(postService.getAllPost());
-//	}
+	@GetMapping
+	public ResponseEntity<List<PostDto>> getAllPost() {
+		return ResponseEntity.ok(postService.getAllPost());
+	}
 
 	@GetMapping("/{post_id}")
 	public ResponseEntity<Post> getPost(@PathVariable(name = "post_id") int postId) {

@@ -37,8 +37,13 @@ public class UserController {
 		return ResponseEntity.ok(userService.getUser(userId));
 	}
 
+	@GetMapping("/checkUsername/{username}")
+	public ResponseEntity<User> checkUsername(@PathVariable(name = "username") String username) {
+		return ResponseEntity.ok(userService.checkUsernameAvailable(username));
+	}
+
 	@GetMapping
-	public ResponseEntity<List<User>> getAllUser() {
+	public ResponseEntity<List<UserDto>> getAllUser() {
 		return ResponseEntity.ok(userService.displayAllUser());
 	}
 
