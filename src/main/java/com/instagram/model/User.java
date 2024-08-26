@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.instagram.Enum.Status;
 
 import lombok.AllArgsConstructor;
@@ -30,7 +31,7 @@ import lombok.Setter;
 public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int userId;
 
 	@Column(name = "username")
@@ -47,6 +48,11 @@ public class User {
 
 	@Enumerated(EnumType.ORDINAL)
 	private Status status;
+
+	private String email;
+
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private String password;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
 	private List<Post> posts = new ArrayList<>();

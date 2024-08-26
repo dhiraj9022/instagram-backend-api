@@ -2,6 +2,7 @@ package com.instagram.service;
 
 import java.util.List;
 
+import com.instagram.service.utils.AuthUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,7 @@ import com.instagram.dto.CommentDto;
 import com.instagram.model.Comment;
 import com.instagram.model.Post;
 import com.instagram.model.User;
-import com.instagram.repo.CommentRepository;
+import com.instagram.repo.CommentRepo;
 
 @Service
 public class CommentService {
@@ -19,7 +20,7 @@ public class CommentService {
 	private static final Logger logger = LoggerFactory.getLogger(CommentService.class);
 
 	@Autowired
-	private CommentRepository commentRepo;
+	private CommentRepo commentRepo;
 
 	@Autowired
 	private UserService userService;
@@ -27,11 +28,14 @@ public class CommentService {
 	@Autowired
 	private PostService postService;
 
+	@Autowired
+	private AuthUtil authUtil;
+
 	public Comment submitComment(CommentDto commentDto) {
 
-		User user = userService.checkUsernameAvailable(commentDto.getUser().getUsername());
+		User user = userService.checkUsernameAvailable(authUtil.getAuthUser().getUsername());
 
-		Post post = postService.getPost(commentDto.getPost().getPostId());
+		Post post = postService.getPost(commentDto.getPostId());
 
 		Comment comment = new Comment();
 		comment.setComment(commentDto.getComment());
@@ -47,11 +51,12 @@ public class CommentService {
 		return commentRepo.findAll();
 	}
 
-	public void deleteComment(int userId) {
+	public void deleteComment(String username) {
 
-		User user = userService.getUser(userId);
-		commentRepo.deleteById(user.getUserId());
-
+		User user = userService.getUserByUsername(username);
+		user.getComments().forEach(c -> {
+			commentRepo.deleteById(c.getId());
+		});
 		logger.info("Deleted comment successfully !!!");
 	}
 }

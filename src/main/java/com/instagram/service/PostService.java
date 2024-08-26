@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import com.instagram.service.utils.AuthUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,8 @@ import com.instagram.dto.PostDto;
 import com.instagram.exception.NotFoundException;
 import com.instagram.model.Post;
 import com.instagram.model.User;
-import com.instagram.repo.PostRepository;
-import com.instagram.repo.UserRepository;
+import com.instagram.repo.PostRep;
+import com.instagram.repo.UserRepo;
 
 @Service
 public class PostService {
@@ -24,17 +25,20 @@ public class PostService {
 	private static final Logger logger = LoggerFactory.getLogger(PostService.class);
 
 	@Autowired
-	private PostRepository postRepo;
+	private PostRep postRepo;
 
 	@Autowired
 	private UserService userService;
 
 	@Autowired
-	private UserRepository userRepo;
+	private UserRepo userRepo;
+
+	@Autowired
+	private AuthUtil authUtil;
 
 	public Post submitPost(@Valid PostDto postDto) {
 
-		User user = userService.checkUsernameAvailable(postDto.getUser().getUsername());
+		User user = userService.checkUsernameAvailable(authUtil.getAuthUser().getUsername());
 
 		Post post = new Post();
 		post.setCaption(postDto.getCaption());
@@ -55,7 +59,6 @@ public class PostService {
 			postDto.setCaption(p.getCaption());
 			postDto.setComments(p.getComments());
 			postDto.setLikeCount(p.getLikeCount());
-//			postDto.setUser(p.getUser());
 
 			postDtos.add(postDto);
 		});
@@ -83,13 +86,23 @@ public class PostService {
 		return postRepo.save(updatePost);
 	}
 
-	public void deletePost(int userId) {
+	public void deletePost(String username) {
+		User user = userService.getUserByUsername(username);
+		if (user == null){
+			logger.error("User not found: " + username);
+			return;
+		}
 
-		User user = userService.getUser(userId);
-		postRepo.deleteById(user.getUserId());
-
-		logger.info("Post deleted successfully");
-
+		List<Post> posts = user.getPosts();
+		if (posts.isEmpty()) {
+			logger.info("No posts found for user: " + username);
+		} else {
+			posts.forEach(post -> {
+				logger.info("Deleting post with ID: " + post.getPostId());
+				postRepo.delete(post);
+			});
+		}
+		logger.info("Post(s) deleted successfully");
 	}
 
 }
