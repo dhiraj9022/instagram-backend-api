@@ -45,10 +45,9 @@ public class Post {
 	private int likeCount;
 
 	@JsonIgnore
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne
 	private User user;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
 	private List<Comment> comments = new ArrayList<>();
-
 }

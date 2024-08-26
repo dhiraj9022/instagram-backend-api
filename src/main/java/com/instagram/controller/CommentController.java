@@ -35,9 +35,9 @@ public class CommentController {
 		return ResponseEntity.ok(commentService.getAllComment());
 	}
 
-	@DeleteMapping("/user/{user_id}")
-	public ResponseEntity<Comment> deleteComment(@PathVariable(name = "user_id") int userId) {
-		commentService.deleteComment(userId);
+	@DeleteMapping("/user/{username}")
+	public ResponseEntity<Comment> deleteComment(@PathVariable(name = "username") String username) {
+		commentService.deleteComment(username);
 		return ResponseEntity.noContent().build();
 	}
 }

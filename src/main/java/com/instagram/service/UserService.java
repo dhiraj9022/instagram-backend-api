@@ -6,19 +6,17 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import com.instagram.dto.*;
+import com.instagram.service.utils.AuthUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.instagram.Enum.Status;
-import com.instagram.dto.AvatarDto;
-import com.instagram.dto.PostDto;
-import com.instagram.dto.UserDto;
-import com.instagram.dto.UserInfoDto;
 import com.instagram.exception.NotFoundException;
 import com.instagram.model.User;
-import com.instagram.repo.UserRepository;
+import com.instagram.repo.UserRepo;
 
 @Service
 public class UserService {
@@ -26,7 +24,16 @@ public class UserService {
 	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
-	private UserRepository userRepo;
+	private UserRepo userRepo;
+
+	@Autowired
+	private AuthUtil authUtil;
+
+	public UserLoginResp getAuthUser() {
+		Optional<UserLoginResp> userDto = userRepo.findDtoByEmail(authUtil.getAuthEmail());
+		if (!userDto.isPresent()) throw new NotFoundException("user not found");
+		return userDto.get();
+	}
 
 	public User AddUser(@Valid UserDto userDto) {
 
@@ -59,9 +66,9 @@ public class UserService {
 		return userRepo.save(updateAvatar);
 	}
 
-	public User updateUsername(UserDto userDto, int userId) {
+	public User updateUsername(UserDto userDto, String username) {
 
-		User updateUsername = getUser(userId);
+		User updateUsername = getUserByUsername(username);
 		updateUsername.setUsername(userDto.getUsername());
 
 		logger.info("Username updated successfully !!!");
@@ -69,16 +76,21 @@ public class UserService {
 		return userRepo.save(updateUsername);
 	}
 
-	public User enableStatus(int userId) {
+	public String enableStatus(String username) {
+		User user = getUserByUsername(username);
 
-		User user = getUser(userId);
-		user.setStatus(Status.OFFLINE);
-		return user;
+		if (user.getStatus() == Status.ONLINE) {
+			user.setStatus(Status.OFFLINE);
+		} else {
+			user.setStatus(Status.ONLINE);
+		}
+
+		return "Ok";
 	}
 
-	public User updateUserInfo(@Valid UserInfoDto infoDto, int userId) {
+	public User updateUserInfo(@Valid UserInfoDto infoDto, String username) {
 
-		User updateUser = getUser(userId);
+		User updateUser = getUserByUsername(username);
 		updateUser.setFullName(infoDto.getFullName());
 		updateUser.setBio(infoDto.getBio());
 		logger.info("User info updated successfully !!!");
@@ -86,28 +98,31 @@ public class UserService {
 		return userRepo.save(updateUser);
 	}
 
-	public User getUser(int userId) {
-		Optional<User> userOpt = userRepo.findById(userId);
-		if (!userOpt.isPresent()) {
-			throw new NotFoundException("User " + userId + " not found");
+	public User getUserByEmail(String email) {
+		Optional<User> userOpt = userRepo.findByEmail(authUtil.getAuthEmail());
+		if (!userOpt.get().getEmail().equals(email)) {
+			throw new NotFoundException("User " + email + " not found");
+		}
+		return userOpt.get();
+	}
+
+	public User getUserByUsername(String username) {
+		Optional<User> userOpt = userRepo.findByUsername(authUtil.getAuthUser().getUsername());
+		if (!userOpt.get().getUsername().equals(username)) {
+			throw new NotFoundException("User " + username + " not found");
 		}
 		return userOpt.get();
 	}
 
 	public User checkUsernameAvailable(String username) {
-		Optional<User> userOpt = userRepo.findByUsername(username);
-		if (!userOpt.isPresent()) {
-			throw new NotFoundException("Username " + username + " not found");
-		}
-		return userOpt.get();
+		return getUserByUsername(username);
 	}
 
 	public List<UserDto> displayAllUser() {
 		List<UserDto> userDtos = new ArrayList<>();
 
-		userRepo.findAll().forEach(u -> {
+		userRepo.findAllByAuthUser(getAuthUser().getUsername()).forEach(u -> {
 			UserDto userDto = new UserDto();
-			userDto.setBio(u.getBio());
 			userDto.setFullName(u.getFullName());
 			userDto.setUsername(u.getUsername());
 			userDto.setStatus(u.getStatus());
@@ -139,8 +154,8 @@ public class UserService {
 		return userDtos;
 	}
 
-	public void deleteUserPermanent(int userId) {
-		User user = getUser(userId);
+	public void deleteUserPermanent(String username) {
+		User user = getUserByUsername(username);
 		userRepo.delete(user);
 		logger.info("User deleted successfully !!!");
 	}

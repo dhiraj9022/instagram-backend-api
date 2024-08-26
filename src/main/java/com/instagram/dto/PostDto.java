@@ -22,10 +22,6 @@ public class PostDto {
 
 	private int likeCount;
 
-//	@NotNull
-//	@NotBlank(message = "Post image required")
-//	private String postImage;
-
 	private User user;
 
 	private List<Comment> comments = new ArrayList<>();

@@ -19,6 +19,10 @@ public class UserDto {
 	@NotBlank(message = "username can't be blank")
 	private String username;
 
+	@NotNull
+	@NotBlank
+	private String email;
+
 	private String fullName;
 
 	private String bio;

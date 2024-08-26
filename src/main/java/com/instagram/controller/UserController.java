@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.instagram.dto.UserLoginResp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,14 +28,14 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	@PostMapping
-	public ResponseEntity<User> addUser(@Valid @RequestBody UserDto userDto) {
-		return ResponseEntity.ok(userService.AddUser(userDto));
+	@GetMapping("/logged")
+	public UserLoginResp getUser(){
+		return userService.getAuthUser();
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<User> getUser(@PathVariable(name = "id") int userId) {
-		return ResponseEntity.ok(userService.getUser(userId));
+	@GetMapping("/{username}")
+	public ResponseEntity<User> getUserByUsername(@PathVariable(name = "username") String username) {
+		return ResponseEntity.ok(userService.getUserByUsername(username));
 	}
 
 	@GetMapping("/checkUsername/{username}")
@@ -42,32 +43,27 @@ public class UserController {
 		return ResponseEntity.ok(userService.checkUsernameAvailable(username));
 	}
 
-	@GetMapping
-	public ResponseEntity<List<UserDto>> getAllUser() {
-		return ResponseEntity.ok(userService.displayAllUser());
+	@PostMapping("/{username}")
+	public ResponseEntity<String> checkStatus(@PathVariable(name = "username") String username) {
+		return ResponseEntity.ok(userService.enableStatus(username));
 	}
 
-	@PostMapping("/{userId}")
-	public ResponseEntity<User> checkStatus(@PathVariable int userId) {
-		return ResponseEntity.ok(userService.enableStatus(userId));
-	}
-
-	@PutMapping("/username/{userId}")
+	@PutMapping("/username/{username}")
 	public ResponseEntity<User> updateUsername(@Valid @RequestBody UserDto userDto,
-			@PathVariable(name = "userId") int userId) {
-		return ResponseEntity.ok(userService.updateUsername(userDto, userId));
+			@PathVariable(name = "username") String username) {
+		return ResponseEntity.ok(userService.updateUsername(userDto, username));
 	}
 
-	@PutMapping("/{id}")
+	@PutMapping("/{username}")
 	public ResponseEntity<User> updateUser(@Valid @RequestBody UserInfoDto userInfoDto,
-			@PathVariable(name = "id") int userId) {
-		return ResponseEntity.ok(userService.updateUserInfo(userInfoDto, userId));
+			@PathVariable(name = "username") String username) {
+		return ResponseEntity.ok(userService.updateUserInfo(userInfoDto, username));
 	}
 
-	@DeleteMapping("/{userId}")
-	public ResponseEntity<User> deleteUserPermanent(@PathVariable int userId) {
+	@DeleteMapping("/{username}")
+	public ResponseEntity<User> deleteUserPermanent(@PathVariable(name = "username") String username) {
 
-		userService.deleteUserPermanent(userId);
+		userService.deleteUserPermanent(username);
 		return ResponseEntity.noContent().build();
 	}
 
